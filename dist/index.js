@@ -28699,8 +28699,7 @@ class ProjectActions {
 
             'authorization': `Bearer ${ghToken}`,
             // Supply the feature flag as a header.
-            'graphql-features': 'projects_next_graphql', //'GraphQL-Features': 'projects_next_graphql',
-
+            'GraphQL-Features': 'projects_next_graphql',
         }
         const octokit = graphql.defaults({
             baseUrl,
@@ -28715,8 +28714,8 @@ class ProjectActions {
                     }
                 }
             }`;
-            console.log(`Query for project ID:\n${query}`);
-            const response = await octokit(query);
+            console.log(`!! Query for project ID:\n${query}`);
+            const response = await octokit({ query: query, headers: { 'GraphQL-Features': 'projects_next_graphql' }  });
 
 //            const projectId = await this.findProjectId(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
             console.log('completed');
