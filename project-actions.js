@@ -324,9 +324,16 @@ class ProjectActions {
             headers,
         });
         console.log('!! Running with experimental headers');
-        const result = await this.addItemToProject(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
-        console.log('completed');
-        console.dir(result);
+        try {
+            const result = await this.addItemToProject(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
+            console.log('completed');
+            console.dir(result);
+        }
+        catch (error) {
+            console.log('got an error');
+            console.log(JSON.stringify(error));
+        }
+
 return;
         try {
             const configs = this.getConfigs();
