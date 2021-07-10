@@ -317,7 +317,7 @@ class ProjectActions {
         const headers = {
             // Supply the feature flag as a header.
             'GraphQL-Features': 'projects_next_graphql',
-            Authorization: `Bearer ${ghToken}`,
+            // Authorization: `Bearer ${ghToken}`,
         }
         const octokit = graphql.defaults({
             baseUrl,
