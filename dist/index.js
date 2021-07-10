@@ -439,8 +439,6 @@ function graphql (request, query, options) {
     return result
   }, {})
 
-  console.log('REQUESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-  console.dir(requestOptions);
   return request(requestOptions)
     .then(response => {
       if (response.data.errors) {
@@ -464,8 +462,6 @@ const graphql = __nccwpck_require__(6653)
 function withDefaults (request, newDefaults) {
   const newRequest = request.defaults(newDefaults)
   const newApi = function (query, options) {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-    console.dir(options);
     return graphql(newRequest, query, options)
   }
 
@@ -28708,11 +28704,21 @@ class ProjectActions {
             baseUrl,
             headers,
         });
-        console.log('!!!!! Running with experimental headers');
+        console.log('Testing with experimental headers');
         try {
-            const projectId = await this.findProjectId(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
+            const query = `{
+                organization(login: "richkuz-org") {
+                    projectNext(number: 2) {
+                        id
+                    }
+                }
+            }`;
+            console.log(`Query for project ID:\n${query}`);
+            const response = await octokit(query);
+
+//            const projectId = await this.findProjectId(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
             console.log('completed');
-            console.dir(projectId);
+            console.dir(response);
         }
         catch (error) {
             console.log('got an error');
@@ -28882,7 +28888,7 @@ module.exports = require("zlib");;
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/
+/******/ 	
 /******/ 	// The require function
 /******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -28896,7 +28902,7 @@ module.exports = require("zlib");;
 /******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
-/******/
+/******/ 	
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
@@ -28905,14 +28911,14 @@ module.exports = require("zlib");;
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
-/******/
+/******/ 	
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-/******/
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	(() => {
@@ -28922,9 +28928,9 @@ module.exports = require("zlib");;
 /******/ 			return module;
 /******/ 		};
 /******/ 	})();
-/******/
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
-/******/
+/******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";/************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
