@@ -63,7 +63,7 @@ class ProjectActions {
             console.log(`Response from query for project ID:\n${JSON.stringify(response, null, 2)}`);
             return _.get(response, 'organization.projectNext.id');
         } catch (error) {
-            throw new Error(`Error querying project ID for project number ${projectNumber}: ${error.message} \n error.request: ${error.request}`);
+            throw new Error(`Error querying project ID for project number ${projectNumber}: ${error.message} \n error.request: ${JSON.stringify(error.request)}`);
         }
     }
 
