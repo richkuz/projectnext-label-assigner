@@ -28696,9 +28696,11 @@ class ProjectActions {
         const baseUrl = 'https://api.github.com';
         const ghToken = core.getInput('ghToken');
         const headers = {
+
+            'authorization': `Bearer ${ghToken}`,
             // Supply the feature flag as a header.
-            'GraphQL-Features': 'projects_next_graphql',
-            // Authorization: `Bearer ${ghToken}`,
+            'graphql-features': 'projects_next_graphql', //'GraphQL-Features': 'projects_next_graphql',
+
         }
         const octokit = graphql.defaults({
             baseUrl,
