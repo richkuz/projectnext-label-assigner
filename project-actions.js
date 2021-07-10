@@ -63,7 +63,7 @@ class ProjectActions {
             console.log(`Response from query for project ID:\n${JSON.stringify(response, null, 2)}`);
             return _.get(response, 'organization.projectNext.id');
         } catch (error) {
-            throw new Error(`Error querying project ID for project number ${projectNumber}: ${error.message}`);
+            throw new Error(`Error querying project ID for project number ${projectNumber}: ${error.message} \n error.request: ${error.request}`);
         }
     }
 
@@ -318,6 +318,7 @@ class ProjectActions {
                 'GraphQL-Features':	'projects_next_graphql',
             }
         });
+        console.log('Running with experimental headers');
 
         try {
             const configs = this.getConfigs();
