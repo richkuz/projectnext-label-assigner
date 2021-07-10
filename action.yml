@@ -1,0 +1,12 @@
+name: 'Table Actions'
+description: 'Updates GitHub project tables based on issues'
+inputs:
+  config:
+    description: 'A JSON array of objects containing label and tableNumber'
+    required: true
+  ghToken:
+    description: 'A GitHub token with write access to the destination project and read access to the source issue. See https://docs.github.com/en/actions/reference/encrypted-secrets'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

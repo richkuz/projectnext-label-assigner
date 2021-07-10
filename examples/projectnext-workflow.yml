@@ -1,0 +1,19 @@
+name: GitHub ProjectNext Automation
+on:
+  issues:
+    types: [labeled,unlabeled]
+
+jobs:
+  sync_issues_with_table:
+    runs-on: ubuntu-latest
+    name: Sync issues with project table
+    steps:
+      - name: Sync issues with project table
+        uses: richkuz/projectnext-label-assigner@master
+        id: sync_with_projects
+        with:
+          config: |
+            [
+              {"label": "label1", "projectNumber": "1"}
+            ]
+          ghToken: ${{ secrets.GITHUB_TOKEN }}
