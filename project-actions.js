@@ -331,7 +331,7 @@ class ProjectActions {
         }
         catch (error) {
             console.log('got an error');
-            console.log(JSON.stringify(error));
+            console.dir(error);
         }
 
 return;

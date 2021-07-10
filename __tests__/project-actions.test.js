@@ -37,7 +37,12 @@ describe("projectActions", () => {
   });
 
   describe("run", () => {
-    it("adds an item to a project when a specific label is added to an issue", async () => {
+    fit("adds an item to a project when a specific label is added to an issue", async () => {
+      // await projectActions.run();
+      // return;
+
+
+
       const mockLabeledIssueContext = {
         ...mockIssuesContext,
         action: 'labeled',
