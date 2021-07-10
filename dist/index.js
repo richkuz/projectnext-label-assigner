@@ -28380,7 +28380,7 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const { graphql } = __nccwpck_require__(8190);
-const fetch = __nccwpck_require__(5673)
+//const fetch = require('node-fetch')
 const core = __nccwpck_require__(2584);
 const github = __nccwpck_require__(9207);
 
