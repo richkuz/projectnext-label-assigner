@@ -28704,11 +28704,11 @@ class ProjectActions {
             baseUrl,
             headers,
         });
-        console.log('!! Running with experimental headers');
+        console.log('!!!!! Running with experimental headers');
         try {
-            const result = await this.addItemToProject(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
+            const projectId = await this.findProjectId(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
             console.log('completed');
-            console.dir(result);
+            console.dir(projectId);
         }
         catch (error) {
             console.log('got an error');
