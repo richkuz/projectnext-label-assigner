@@ -439,6 +439,8 @@ function graphql (request, query, options) {
     return result
   }, {})
 
+  console.log('REQUESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+  console.dir(requestOptions);
   return request(requestOptions)
     .then(response => {
       if (response.data.errors) {
