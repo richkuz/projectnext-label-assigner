@@ -28379,9 +28379,11 @@ function wrappy (fn, cb) {
 /***/ 2765:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
+const { graphql } = __nccwpck_require__(8190);
+const fetch = __nccwpck_require__(5673)
 const core = __nccwpck_require__(2584);
 const github = __nccwpck_require__(9207);
-const { graphql } = __nccwpck_require__(8190);
+
 const _ = __nccwpck_require__(4762);
 
 class ProjectActions {
@@ -28693,19 +28695,18 @@ class ProjectActions {
     async run() {
         console.log('Running');
 
-        const baseUrl = 'https://api.github.com';
-        const ghToken = core.getInput('ghToken');
+        const baseUrl = process.env.GRAPHQL_API_BASE || 'https://api.github.com'
         const headers = {
-
-            'authorization': `Bearer ${ghToken}`,
             // Supply the feature flag as a header.
             'GraphQL-Features': 'projects_next_graphql',
+            Authorization: `Bearer ${process.env.PAT_TOKEN || process.env.GITHUB_TOKEN}`
         }
+
         const octokit = graphql.defaults({
             baseUrl,
             headers,
         });
-        console.log('Testing with experimental headers');
+        console.log('! Testing with experimental headers');
         try {
             const query = `{
                 organization(login: "richkuz-org") {
@@ -28715,7 +28716,7 @@ class ProjectActions {
                 }
             }`;
             console.log(`!! Query for project ID:\n${query}`);
-            const response = await octokit({ query: query, headers: { 'GraphQL-Features': 'projects_next_graphql' }  });
+            const response = await octokit(query);
 
 //            const projectId = await this.findProjectId(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
             console.log('completed');

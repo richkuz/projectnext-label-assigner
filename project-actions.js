@@ -1,6 +1,8 @@
+const { graphql } = require("@octokit/graphql");
+const fetch = require('node-fetch')
 const core = require('@actions/core');
 const github = require('@actions/github');
-const { graphql } = require("@octokit/graphql");
+
 const _ = require('lodash');
 
 class ProjectActions {
@@ -312,19 +314,18 @@ class ProjectActions {
     async run() {
         console.log('Running');
 
-        const baseUrl = 'https://api.github.com';
-        const ghToken = core.getInput('ghToken');
+        const baseUrl = process.env.GRAPHQL_API_BASE || 'https://api.github.com'
         const headers = {
-
-            'authorization': `Bearer ${ghToken}`,
             // Supply the feature flag as a header.
             'GraphQL-Features': 'projects_next_graphql',
+            Authorization: `Bearer ${process.env.PAT_TOKEN || process.env.GITHUB_TOKEN}`
         }
+
         const octokit = graphql.defaults({
             baseUrl,
             headers,
         });
-        console.log('Testing with experimental headers');
+        console.log('! Testing with experimental headers');
         try {
             const query = `{
                 organization(login: "richkuz-org") {
@@ -334,7 +335,7 @@ class ProjectActions {
                 }
             }`;
             console.log(`!! Query for project ID:\n${query}`);
-            const response = await octokit({ query: query, headers: { 'GraphQL-Features': 'projects_next_graphql' }  });
+            const response = await octokit(query);
 
 //            const projectId = await this.findProjectId(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
             console.log('completed');

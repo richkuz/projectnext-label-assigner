@@ -14,21 +14,13 @@ You can provide multiple label to project mappings as the action input.
 
 See `examples/projectnext-workflow.yml`
 
-### `ghToken`
+### GitHub Token
 
 Specify a secret GitHub API token with access to read/write issues, PRs, and project cards for the target project and repo.
 
-The `GITHUB_TOKEN` secret is available by default on all repositories. This token has sufficient permissions to add and remove cards from any projects within the issue or PR's own repository. Reference this secret using:
+The `GITHUB_TOKEN` secret is available by default on all action environments. This token has sufficient permissions to add and remove cards from any projects within the issue or PR's own repository.
 
-```
-ghToken: ${{ secrets.GITHUB_TOKEN }}
-```
-
-Or generate an API token with additional privileges under https://github.com/settings/tokens. Store the secret in the workflow repository's secrets as `MY_PROJECT_ASSIGNER_TEST_TOKEN`, for example. See `https://github.com/$ORG/$REPO/settings/secrets/actions`. Reference this repository secret in your workflow using:
-
-```
-ghToken: ${{ secrets.MY_PROJECT_ASSIGNER_TEST_TOKEN }}
-```
+Or generate an API token with additional privileges under https://github.com/settings/tokens. Store the secret in the workflow repository's secrets as `PAT_TOKEN` and it will take precedence over the `GITHUB_TOKEN` when the action runs. See `https://github.com/$ORG/$REPO/settings/secrets/actions`.
 
 
 ## Example usage

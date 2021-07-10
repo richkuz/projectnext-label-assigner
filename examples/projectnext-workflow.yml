@@ -16,4 +16,7 @@ jobs:
             [
               {"label": "label1", "projectNumber": "1"}
             ]
-          ghToken: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GRAPHQL_API_BASE: 'https://api.github.com'
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
