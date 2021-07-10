@@ -325,21 +325,21 @@ class ProjectActions {
             baseUrl,
             headers,
         });
-        console.log('! Testing with experimental headers');
+        console.log('!!!! Testing with experimental headers');
         try {
-            const query = `{
-                organization(login: "richkuz-org") {
-                    projectNext(number: 2) {
-                        id
-                    }
-                }
-            }`;
-            console.log(`!! Query for project ID:\n${query}`);
-            const response = await octokit(query);
+            // const query = `{
+            //     organization(login: "richkuz-org") {
+            //         projectNext(number: 2) {
+            //             id
+            //         }
+            //     }
+            // }`;
+            // console.log(`!! Query for project ID:\n${query}`);
+            // const response = await octokit(query);
 
-//            const projectId = await this.findProjectId(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
+           const projectId = await this.findProjectId(octokit, { owner: 'richkuz-org', itemNumber: 2, itemId: 'MDU6SXNzdWU5NDEyNjc2MTI=' }, 2);
             console.log('completed');
-            console.dir(response);
+            console.dir(projectId);
         }
         catch (error) {
             console.log('got an error');
