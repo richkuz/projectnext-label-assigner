@@ -28379,8 +28379,6 @@ function wrappy (fn, cb) {
 /***/ 2765:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-console.log('*** ProjectActions');
-
 const core = __nccwpck_require__(2584);
 const github = __nccwpck_require__(9207);
 const { graphql } = __nccwpck_require__(8190);
@@ -28399,7 +28397,7 @@ class ProjectActions {
             throw new Error(`itemId is required.`);
         }
 
-        const projectId = this.findProjectId(octokit, context, projectNumber);
+        const projectId = await this.findProjectId(octokit, context, projectNumber);
         if (!projectId) {
             throw new Error(`Error removing item from project: projectNumber ${projectNumber} not found`);
         }
@@ -28423,7 +28421,7 @@ class ProjectActions {
             throw new Error(`itemId is required.`);
         }
 
-        const projectId = this.findProjectId(octokit, context, projectNumber);
+        const projectId = await this.findProjectId(octokit, context, projectNumber);
         if (!projectId) {
             throw new Error(`Error adding item to project: projectNumber ${projectNumber} not found`);
         }
@@ -28697,7 +28695,8 @@ class ProjectActions {
         const ghToken = core.getInput('ghToken');
         const octokit = graphql.defaults({
             headers: {
-                authorization: `Bearer ${ghToken}`
+                authorization: `Bearer ${ghToken}`,
+                'GraphQL-Features':	'projects_next_graphql',
             }
         });
 
@@ -28910,7 +28909,6 @@ module.exports = require("zlib");;
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-console.log('Loading ProjectActions');
 const ProjectActions = __nccwpck_require__(2765);
 new ProjectActions().run();
 

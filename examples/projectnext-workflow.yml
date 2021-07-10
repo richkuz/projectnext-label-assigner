@@ -9,7 +9,7 @@ jobs:
     name: Sync issues with project table
     steps:
       - name: Sync issues with project table
-        uses: richkuz/projectnext-label-assigner@master
+        uses: richkuz/projectnext-label-assigner@main
         id: sync_with_projects
         with:
           config: |

@@ -1,5 +1,3 @@
-console.log('*** ProjectActions');
-
 const core = require('@actions/core');
 const github = require('@actions/github');
 const { graphql } = require("@octokit/graphql");
@@ -18,7 +16,7 @@ class ProjectActions {
             throw new Error(`itemId is required.`);
         }
 
-        const projectId = this.findProjectId(octokit, context, projectNumber);
+        const projectId = await this.findProjectId(octokit, context, projectNumber);
         if (!projectId) {
             throw new Error(`Error removing item from project: projectNumber ${projectNumber} not found`);
         }
@@ -42,7 +40,7 @@ class ProjectActions {
             throw new Error(`itemId is required.`);
         }
 
-        const projectId = this.findProjectId(octokit, context, projectNumber);
+        const projectId = await this.findProjectId(octokit, context, projectNumber);
         if (!projectId) {
             throw new Error(`Error adding item to project: projectNumber ${projectNumber} not found`);
         }
@@ -316,7 +314,8 @@ class ProjectActions {
         const ghToken = core.getInput('ghToken');
         const octokit = graphql.defaults({
             headers: {
-                authorization: `Bearer ${ghToken}`
+                authorization: `Bearer ${ghToken}`,
+                'GraphQL-Features':	'projects_next_graphql',
             }
         });
 
