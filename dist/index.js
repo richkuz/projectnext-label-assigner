@@ -28699,7 +28699,7 @@ class ProjectActions {
                 'GraphQL-Features':	'projects_next_graphql',
             }
         });
-        console.log('Running with experimental headers');
+        console.log('Running with experimental headers: ' + JSON.stringify(octokit.headers));
 
         try {
             const configs = this.getConfigs();
