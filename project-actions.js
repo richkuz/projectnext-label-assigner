@@ -320,7 +320,9 @@ class ProjectActions {
         });
         console.log('Running with experimental headers: ');
         console.dir(octokit);
+        console.dir(octokit.endpoint.DEFAULTS.headers);
         console.dir(octokit.defaults);
+        console.dir(JSON.stringify(octokit));
 
         try {
             const configs = this.getConfigs();
