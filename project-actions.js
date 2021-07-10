@@ -311,18 +311,19 @@ class ProjectActions {
 
     async run() {
         console.log('Running');
+
+        const baseUrl = 'https://api.github.com';
         const ghToken = core.getInput('ghToken');
+        const headers = {
+            // Supply the feature flag as a header.
+            'GraphQL-Features': 'projects_next_graphql',
+            Authorization: `Bearer ${ghToken}`,
+        }
         const octokit = graphql.defaults({
-            headers: {
-                authorization: `Bearer ${ghToken}`,
-                'GraphQL-Features':	'projects_next_graphql',
-            }
+            baseUrl,
+            headers,
         });
-        console.log('Running with experimental headers: ');
-        console.dir(octokit);
-        console.dir(octokit.endpoint.DEFAULTS.headers);
-        console.dir(octokit.defaults);
-        console.dir(JSON.stringify(octokit));
+        console.log('Running with experimental headers');
 
         try {
             const configs = this.getConfigs();
