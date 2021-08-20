@@ -14,7 +14,7 @@ jobs:
         with:
           config: |
             [
-              {"label": "label1", "projectNumber": "1"}
+              {"label": "label1", "projectNumber": 1}
             ]
         env:
           GRAPHQL_API_BASE: 'https://api.github.com'

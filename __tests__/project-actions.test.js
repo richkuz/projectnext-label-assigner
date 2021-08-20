@@ -154,7 +154,7 @@ describe("projectActions", () => {
 
   describe("createItem", () => {
     it("creates an item", async () => {
-      const mockCreateItemMutation = `mutation {
+      const mockCreateItemMutation = `mutation createItem($projectId: String!, $contentId: String!) {
           addProjectNextItem(input: {projectId: $projectId contentId: $contentId}) {
               projectNextItem {
                   id
@@ -184,7 +184,7 @@ describe("projectActions", () => {
 
   describe("findProjectId", () => {
     it("finds a column in a user project", async () => {
-      const mockFindProjectIdQuery = `{
+      const mockFindProjectIdQuery = `query findProjectId($owner: String!, $projectNumber: Int!) {
         organization(login: $owner) {
             projectNext(number: $projectNumber) {
                 id
@@ -212,9 +212,9 @@ describe("projectActions", () => {
   });
 
 
-  xdescribe("removeItem", () => {
+  describe("removeItem", () => {
     it("removes an item", async () => {
-      const mockRemoveItemMutation = `mutation {
+      const mockRemoveItemMutation = `mutation removeItem($projectId: String!, $itemId: String!) {
         deleteProjectNextItem(
           input: {
             projectId: $projectId
@@ -225,7 +225,7 @@ describe("projectActions", () => {
         }
       }`;
       const mockRemoveItemResponse = JSON.parse(`{
-        "removeProjectNextItem": {
+        "deleteProjectNextItem": {
           "projectNextItem": {
             "id":"MAE1OlByb2plY3ROZXh0SXRlbTUzNTk2"
           }
