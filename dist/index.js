@@ -28733,6 +28733,7 @@ class ProjectActions {
             const configs = this.getConfigs();
             console.log(`Using config: ${JSON.stringify(configs)}`);
             const context = this.normalizedGithubContext(github.context);
+            console.log(`Context: ${JSON.stringify(context)}`);
             if (context.action === "labeled") {
                 for (const config of configs) {
                     if (context.label === config.label) {
