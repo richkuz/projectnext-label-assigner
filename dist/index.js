@@ -28408,20 +28408,20 @@ class ProjectActions {
         await this.removeItem(octokit, projectId, itemId);
     }
 
-    async removeItem(octokit, projectId, contentId) {
+    async removeItem(octokit, projectId, itemId) {
         try {
             const mutation = `
-                mutation removeItem($projectId: String!, $contentId: String!) {
+                mutation removeItem($projectId: String!, $itemId: ID!) {
                     deleteProjectNextItem(
                         input: {
                           projectId: $projectId
-                          contentId: $contentId
+                          itemId: $itemId
                         }
                       ) {
                         deletedItemId
                       }
                 }`
-            const params = {projectId: projectId, contentId: contentId};
+            const params = {projectId: projectId, itemId: itemId};
             console.log(`Delete item mutation:\n${mutation}`);
             console.log(`Params: ${JSON.stringify(params)}`);
             // Octokit will throw an error if GraphQL returns any error messages
@@ -28429,7 +28429,7 @@ class ProjectActions {
             console.log(`Remove item response:\n${JSON.stringify(response)}`);
             return 'TODO';
         } catch (error) {
-            throw new Error(`Error creating item for item ID [${contentId}] in project ${projectId}: ${error.message}`);
+            throw new Error(`Error creating item for item ID [${itemId}] in project ${projectId}: ${error.message}`);
         }
     }
 
