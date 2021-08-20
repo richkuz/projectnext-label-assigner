@@ -73,7 +73,7 @@ class ProjectActions {
 
     async findProjectId(octokit, context, projectNumber) {
         try {
-            const query = `{
+            const query = `findProjectId($owner: String!, $projectNumber: String!) {
                 organization(login: $owner) {
                     projectNext(number: $projectNumber) {
                         id
