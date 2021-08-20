@@ -28461,8 +28461,10 @@ class ProjectActions {
                     }
                 }
             }`;
+            const params = { owner: context.owner, projectNumber: projectNumber };
             console.log(`Query for project ID:\n${query}`);
-            const response = await octokit(query, { owner: context.owner, projectNumber: projectNumber });
+            console.log(`Params: ${JSON.stringify(params)}`);
+            const response = await octokit(query, params);
             console.log(`Response from query for project ID:\n${JSON.stringify(response, null, 2)}`);
             return _.get(response, 'organization.projectNext.id');
         } catch (error) {
