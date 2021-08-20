@@ -214,11 +214,11 @@ describe("projectActions", () => {
 
   describe("removeItem", () => {
     it("removes an item", async () => {
-      const mockRemoveItemMutation = `mutation removeItem($projectId: String!, $itemId: String!) {
+      const mockRemoveItemMutation = `mutation removeItem($projectId: String!, $contentId: String!) {
         deleteProjectNextItem(
           input: {
             projectId: $projectId
-            itemId: $itemId
+            contentId: $contentId
           }
         ) {
           deletedItemId
@@ -233,15 +233,15 @@ describe("projectActions", () => {
       }`);
 
       const mOctokit = jest.fn().mockResolvedValueOnce(mockRemoveItemResponse);
-      const itemId = 'mock_item_id';
+      const contentId = 'mock_item_id';
       const projectId = 'mock_project_id';
-      const response = await projectActions.removeItem(mOctokit, projectId, itemId);
+      const response = await projectActions.removeItem(mOctokit, projectId, contentId);
       expect(response).toBe('MAE1OlByb2plY3ROZXh0SXRlbTUzNTk2');
       expect(mOctokit.mock.calls.length).toBe(1);
       const invokedQuery = mOctokit.mock.calls[0][0];
       const invokedParams = mOctokit.mock.calls[0][1];
       expect(invokedQuery.replace(/\s+/g, '')).toBe(mockRemoveItemMutation.replace(/\s+/g, ''));
-      expect(JSON.stringify(invokedParams)).toBe(JSON.stringify({ projectId: projectId, itemId: itemId }));
+      expect(JSON.stringify(invokedParams)).toBe(JSON.stringify({ projectId: projectId, contentId: contentId }));
     });
   });
 });
