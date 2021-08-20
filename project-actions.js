@@ -24,11 +24,31 @@ class ProjectActions {
         }
 
         console.log(`Removing ${itemType} number ${itemNumber}, ID ${itemId} from project [${projectNumber}], owner "${context.owner}"`);
-        await this.removeItem(octokit, itemId, projectId);
+        await this.removeItem(octokit, projectId, itemId);
     }
 
-    async removeItem(octokit, itemId, projectId) {
-        console.log('TODO: Remove item');
+    async removeItem(octokit, projectId, itemId) {
+        try {
+            const mutation = `
+                mutation {
+                    deleteProjectNextItem(
+                        input: {
+                          projectId: $projectId
+                          itemId: $itemId
+                        }
+                      ) {
+                        deletedItemId
+                      }
+                }`
+
+            console.log(`Delete item mutation:\n${mutation}`);
+            // Octokit will throw an error if GraphQL returns any error messages
+            const response = await octokit(mutation, {projectId: projectId, itemId: itemId});
+            console.log(`Remove item response:\n${JSON.stringify(response)}`);
+            return 'TODO';
+        } catch (error) {
+            throw new Error(`Error creating item for item ID [${contentId}] in project ${projectId}: ${error.message}`);
+        }
     }
 
     async addItemToProject(octokit, context, projectNumber) {
@@ -48,20 +68,20 @@ class ProjectActions {
         }
 
         console.log(`Creating a new item for ${itemType} number ${itemNumber}, ID ${itemId} in project [${projectNumber}], owner "${context.owner}"`);
-        await this.createItem(octokit, itemId, projectId);
+        await this.createItem(octokit, projectId, itemId);
     }
 
     async findProjectId(octokit, context, projectNumber) {
         try {
             const query = `{
-                organization(login: "${context.owner}") {
-                    projectNext(number: ${projectNumber}) {
+                organization(login: $owner) {
+                    projectNext(number: $projectNumber) {
                         id
                     }
                 }
             }`;
             console.log(`Query for project ID:\n${query}`);
-            const response = await octokit(query);
+            const response = await octokit(query, { owner: context.owner, projectNumber: projectNumber });
             console.log(`Response from query for project ID:\n${JSON.stringify(response, null, 2)}`);
             return _.get(response, 'organization.projectNext.id');
         } catch (error) {
@@ -69,21 +89,23 @@ class ProjectActions {
         }
     }
 
-    async createItem(octokit, itemId, projectId) {
+    async createItem(octokit, projectId, contentId) {
         try {
             const mutation = `
                 mutation {
-                    addProjectNextItem(input: {projectId: "${projectId}" contentId: "${itemId}"}) {
+                    addProjectNextItem(input: {projectId: $projectId contentId: $contentId}) {
                         projectNextItem {
                             id
                         }
                     }
                 }`;
-            console.log(`Create item mutation: ${mutation}`);
-            const response = await octokit(mutation); // Octokit will throw an error if GraphQL returns any error messages
+            console.log(`Create item mutation:\n${mutation}`);
+            // Octokit will throw an error if GraphQL returns any error messages
+            const response = await octokit(mutation, {projectId: projectId, contentId: contentId});
             console.log(`Create item response:\n${JSON.stringify(response)}`);
+            return _.get(response, 'addProjectNextItem.projectNextItem.id');
         } catch (error) {
-            throw new Error(`Error creating item for item ID [${itemId}] in project ${projectId}: ${error.message}`);
+            throw new Error(`Error creating item for item ID [${contentId}] in project ${projectId}: ${error.message}`);
         }
     }
 
@@ -328,7 +350,7 @@ class ProjectActions {
 
         try {
             const configs = this.getConfigs();
-            console.log('Using config: ' + JSON.stringify(configs));
+            console.log(`Using config: ${JSON.stringify(configs)}`);
             const context = this.normalizedGithubContext(github.context);
             if (context.action === "labeled") {
                 for (const config of configs) {

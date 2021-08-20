@@ -10,9 +10,13 @@ This action:
 
 You can provide multiple label to project mappings as the action input.
 
-## Inputs
+## Example usage
 
-See `examples/projectnext-workflow.yml`
+In order to use this action, create a workflow configuration file (e.g. `projectnext-workflow.yml`) in your repository's `.github/workflows` directory. *Note that you need to have GitHub Actions enabled for your repository in order for this to work!*
+
+### A workflow configuration for assigning issues to projects
+
+See [examples/projectnext-workflow.yml](examples/projectnext-workflow.yml).
 
 ### GitHub Token
 
@@ -23,14 +27,6 @@ The `GITHUB_TOKEN` secret is available by default on all action environments. Th
 Or generate an API token with additional privileges under https://github.com/settings/tokens. Store the secret in the workflow repository's secrets as `PAT_TOKEN` and it will take precedence over the `GITHUB_TOKEN` when the action runs. See `https://github.com/$ORG/$REPO/settings/secrets/actions`.
 
 
-## Example usage
-
-In order to use this action, create a workflow configuration file (e.g. `projectnext-workflow.yml`) in your repository's `.github/workflows` directory. *Note that you need to have GitHub Actions enabled for your repository in order for this to work!*
-
-### A workflow configuration for assigning issues to projects
-
-See `examples/table-workflow.yml`
-
 ## Development
 
 To make changes to this action's source code, fork this repository and make any edits you need.
@@ -40,12 +36,7 @@ Rebuild the `dist/index.js` file to include all packages by running:
 npm run build
 ```
 
-If you are pushing many changes to your own fork and testing iteratively, you'll want to re-push the release tags so that your test projects can run actions with your new code.
-```
-git tag -d vX.y.z
-git tag -a -m "vX.y.z" vX.y.z
-git push --force origin master --tags  # BE CAREFUL!
-```
+If you are pushing many changes to your own fork and testing iteratively, your workflow yml file can specify a particular branch or commit of this action, e.g. `richkuz/projectnext-label-assigner@main`.
 
 GitHub's [GraphQL Explorer](https://docs.github.com/en/graphql/overview/explorer) helps when debugging queries.
 

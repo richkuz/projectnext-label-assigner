@@ -37,12 +37,7 @@ describe("projectActions", () => {
   });
 
   describe("run", () => {
-    fit("adds an item to a project when a specific label is added to an issue", async () => {
-      // await projectActions.run();
-      // return;
-
-
-
+    it("adds an item to a project when a specific label is added to an issue", async () => {
       const mockLabeledIssueContext = {
         ...mockIssuesContext,
         action: 'labeled',
@@ -152,132 +147,107 @@ describe("projectActions", () => {
       expect(spiedProjectNumber).toBe(projectNumber);
 
       expect(spiedCreateItem.mock.calls.length).toBe(1);
-      expect(spiedCreateItem.mock.calls[0][1]).toBe('mocked_issue_node_id');
-      expect(spiedCreateItem.mock.calls[0][2]).toBe('mock_project_id');
+      expect(spiedCreateItem.mock.calls[0][1]).toBe('mock_project_id');
+      expect(spiedCreateItem.mock.calls[0][2]).toBe('mocked_issue_node_id');
     });
-
-    xit("does not create an item when an item already exists for the issue", async () => {
-
-    });
-
   });
 
-  xdescribe("createItem", () => {
+  describe("createItem", () => {
     it("creates an item", async () => {
-      // TODO Wrong data
-      const mockCardMutationResponse = JSON.parse(`{
-        "addProjectCard": {
-          "cardEdge": {
-            "node": {
-              "id": "MDExOlByb2plY3RDYXJkNTkyNjcyNzc="
-            }
-          }
-        }
-      }`);
-      const mOctokit = jest.fn().mockResolvedValueOnce(mockCardMutationResponse);
-      const projectId = 'mock_project_id';
-      const itemId = 'mocked_issue_node_id';
-      await projectActions.createCard(mOctokit, projectColumnId, contentId);
-      expect(mOctokit.mock.calls.length).toBe(1);
-      expect(mOctokit.mock.calls[0][0].replace(/\s+/g, '')).toBe(`
-        mutation {
-          addProjectNextItem(input: {projectId: "${projectId}" contentId: "${itemId}"}) {
+      const mockCreateItemMutation = `mutation {
+          addProjectNextItem(input: {projectId: $projectId contentId: $contentId}) {
               projectNextItem {
                   id
               }
           }
-      }`.replace(/\s+/g, ''));
-    });
-
-    it("throws an error when attempting to create a card with an invalid issue content ID", async () => {
-      // GitHub GraphQL responds with this payload when, for example, an invalid content ID is specified:
-      /*
-      {
-        "data": {
-          "addProjectCard": null
-        },
-        "errors": [
-          {
-            "type": "NOT_FOUND",
-            "path": [
-              "addProjectCard"
-            ],
-            "locations": [
-              {
-                "line": 3,
-                "column": 11
-              }
-            ],
-            "message": "Could not resolve to ProjectCardItem node with the global id of 'pancakes'."
+      }`;
+      const mockCreateItemResponse = JSON.parse(`{
+        "addProjectNextItem": {
+          "projectNextItem": {
+            "id":"MAE1OlByb2plY3ROZXh0SXRlbTUzNTk2"
           }
-        ]
-      }*/
-      // Octokit throws the error, so our code is not responsible for parsing that raw GraphQL response.
-      const mOctokit = jest.fn().mockRejectedValueOnce(new Error("Could not resolve to ProjectCardItem node with the global id of 'pancakes'."));
-      const projectColumnId = 'PC_lQDOA7oDiM4VBNFezgC6epXOANPw0Q';
-      const contentId = 'pancakes';
-      await expect(projectActions.createCard(mOctokit, projectColumnId, contentId)).rejects.toThrow();
+        }
+      }`);
+
+      const mOctokit = jest.fn().mockResolvedValueOnce(mockCreateItemResponse);
+      const contentId = 'mock_content_id';
+      const projectId = 'mock_project_id';
+      const response = await projectActions.createItem(mOctokit, projectId, contentId);
+      expect(response).toBe('MAE1OlByb2plY3ROZXh0SXRlbTUzNTk2');
+      expect(mOctokit.mock.calls.length).toBe(1);
+      const invokedQuery = mOctokit.mock.calls[0][0];
+      const invokedParams = mOctokit.mock.calls[0][1];
+      expect(invokedQuery.replace(/\s+/g, '')).toBe(mockCreateItemMutation.replace(/\s+/g, ''));
+      expect(JSON.stringify(invokedParams)).toBe(JSON.stringify({ projectId: projectId, contentId: contentId }));
+    });
+  });
+
+  describe("findProjectId", () => {
+    it("finds a column in a user project", async () => {
+      const mockFindProjectIdQuery = `{
+        organization(login: $owner) {
+            projectNext(number: $projectNumber) {
+                id
+            }
+        }
+      }`;
+      const mockFindProjectIdResponse = JSON.parse(`{
+        "organization": {
+          "projectNext": {
+            "id": "MAExOlByb2plY3ROZXh0MTQ0MQ=="
+          }
+        }
+      }`);
+
+      const mOctokit = jest.fn().mockResolvedValueOnce(mockFindProjectIdResponse);
+      const projectNumber = 2;
+      const response = await projectActions.findProjectId(mOctokit, mockIssuesContext, projectNumber);
+      expect(response).toBe('MAExOlByb2plY3ROZXh0MTQ0MQ==');
+      expect(mOctokit.mock.calls.length).toBe(1);
+      const invokedQuery = mOctokit.mock.calls[0][0];
+      const invokedParams = mOctokit.mock.calls[0][1];
+      expect(invokedQuery.replace(/\s+/g, '')).toBe(mockFindProjectIdQuery.replace(/\s+/g, ''));
+      expect(JSON.stringify(invokedParams)).toBe(JSON.stringify({ owner: mockIssuesContext.owner, projectNumber: projectNumber }));
+    });
+  });
+
+
+  xdescribe("removeItem", () => {
+    it("removes an item", async () => {
+      const mockRemoveItemMutation = `mutation {
+        deleteProjectNextItem(
+          input: {
+            projectId: $projectId
+            itemId: $itemId
+          }
+        ) {
+          deletedItemId
+        }
+      }`;
+      const mockRemoveItemResponse = JSON.parse(`{
+        "removeProjectNextItem": {
+          "projectNextItem": {
+            "id":"MAE1OlByb2plY3ROZXh0SXRlbTUzNTk2"
+          }
+        }
+      }`);
+
+      const mOctokit = jest.fn().mockResolvedValueOnce(mockRemoveItemResponse);
+      const itemId = 'mock_item_id';
+      const projectId = 'mock_project_id';
+      const response = await projectActions.removeItem(mOctokit, projectId, itemId);
+      expect(response).toBe('MAE1OlByb2plY3ROZXh0SXRlbTUzNTk2');
+      expect(mOctokit.mock.calls.length).toBe(1);
+      const invokedQuery = mOctokit.mock.calls[0][0];
+      const invokedParams = mOctokit.mock.calls[0][1];
+      expect(invokedQuery.replace(/\s+/g, '')).toBe(mockRemoveItemMutation.replace(/\s+/g, ''));
+      expect(JSON.stringify(invokedParams)).toBe(JSON.stringify({ projectId: projectId, itemId: itemId }));
     });
   });
 });
 
 xdescribe('OLD TESTS', () => {
 
-  describe("removeCard", () => {
-    it("removes a card", async () => {
-      const mockRemoveCardMutationResponse = JSON.parse(`{
-        "deleteProjectCard": {
-          "deletedCardId": "MDExOlByb2plY3RDYXJkNTkyNjkyNzk="
-        }
-      }`);
-      const mOctokit = jest.fn().mockResolvedValueOnce(mockRemoveCardMutationResponse);
-      const cardId = 'MDExOlByb2plY3RDYXJkNTkyNjkyNzk=';
-      await projectActions.removeCard(mOctokit, cardId);
-      expect(mOctokit.mock.calls.length).toBe(1);
-      expect(mOctokit.mock.calls[0][0].replace(/\s+/g, '')).toBe(`
-        mutation {
-          deleteProjectCard(input: {cardId: "MDExOlByb2plY3RDYXJkNTkyNjkyNzk="}) {
-              deletedCardId
-          }
-      }`.replace(/\s+/g, ''));
-    });
-
-    it("throws an error when attempting to remove a card with an invalid card ID", async () => {
-      // GitHub GraphQL responds with this payload when an invalid card ID is specified:
-      /*
-        "data": {
-          "deleteProjectCard": null
-        },
-        "errors": [
-          {
-            "type": "NOT_FOUND",
-            "path": [
-              "deleteProjectCard"
-            ],
-            "locations": [
-              {
-                "line": 2,
-                "column": 11
-              }
-            ],
-            "message": "Could not resolve to a node with the global id of 'pancakes'."
-          }
-        ]
-      */
-      // Octokit throws the error, so our code is not responsible for parsing that raw GraphQL response.
-      const mOctokit = jest.fn().mockRejectedValueOnce(new Error("Could not resolve to a node with the global id of 'pancakes'."));
-      const cardId = 'pancakes';
-      await expect(projectActions.removeCard(mOctokit, cardId)).rejects.toThrow();
-      expect(mOctokit.mock.calls.length).toBe(1);
-      expect(mOctokit.mock.calls[0][0].replace(/\s+/g, '')).toBe(`
-        mutation {
-          deleteProjectCard(input: {cardId: "pancakes"}) {
-              deletedCardId
-          }
-      }`.replace(/\s+/g, ''));
-
-    });
-  });
 
   describe("findProjectCardsForPayloadItem", () => {
     it("finds project cards for an existing project issue", async () => {
