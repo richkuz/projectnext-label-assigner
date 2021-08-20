@@ -6,7 +6,7 @@ This action does not work on legacy GitHub projects.
 
 This action:
   - Assigns an issue or pull request to a project when a specified label is applied
-  - Removes an issue or pull request from a project when a specified label is removed
+  - ~~Removes an issue or pull request from a project when a specified label is removed.~~ Not implemented yet, due to API limitations finding existing project items by issue or PR number.
 
 You can provide multiple label to project mappings as the action input.
 

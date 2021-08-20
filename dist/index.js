@@ -28410,6 +28410,9 @@ class ProjectActions {
 
     async removeItem(octokit, projectId, itemId) {
         try {
+            console.log("TODO: Removing items is broken. There's no API to find an item by its origin issue ID.");
+            return;
+            /*
             const mutation = `
                 mutation removeItem($projectId: String!, $itemId: ID!) {
                     deleteProjectNextItem(
@@ -28428,6 +28431,7 @@ class ProjectActions {
             const response = await octokit(mutation, params);
             console.log(`Remove item response:\n${JSON.stringify(response)}`);
             return 'TODO';
+            */
         } catch (error) {
             throw new Error(`Error creating item for item ID [${itemId}] in project ${projectId}: ${error.message}`);
         }
