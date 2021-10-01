@@ -108,7 +108,7 @@ describe("projectActions", () => {
         .toBe(JSON.stringify(mockIssuesContext));
     });
 
-    it("returns a normalied context for a pull request event", () => {
+    it("returns a normalized context for a pull request event", () => {
       const mockPRsGithubContext = {
         payload: {
           repository: {
@@ -129,6 +129,72 @@ describe("projectActions", () => {
       };
       expect(JSON.stringify(projectActions.normalizedGithubContext(mockPRsGithubContext)))
         .toBe(JSON.stringify(mockPRsContext));
+    });
+
+    it("returns a normalized context when someone deletes labels", () => {
+      const mockGithubContext =
+      {
+        "payload": {
+          "action": "unlabeled",
+          "issue": {
+            "assignees": [],
+            "body": "foo",
+            "closed_at": null,
+            "id": 955896813,
+            "labels": [
+              {
+                "color": "5ef27e",
+                "default": false,
+                "description": "An enhancement of existing functions.",
+                "id": 1845799506,
+                "name": "story",
+                "node_id": "MDU6TGFiZWwxODQ1Nzk5NTA2",
+                "url": "https://api.github.com/repos/richkuz/foo/labels/story"
+              },
+              {
+                "color": "3c6e9e",
+                "default": true,
+                "description": "",
+                "id": 2141191147,
+                "name": "documentation",
+                "node_id": "MDU6TGFiZWwyMTQxMTkxMTQ3",
+                "url": "https://api.github.com/repos/richkuz/foo/labels/documentation"
+              }
+            ],
+            "labels_url": "https://api.github.com/repos/richkuz/foo/issues/753/labels{/name}",
+            "url": "https://api.github.com/repos/richkuz/foo/issues/753",
+            "user": {
+              "id": 5288246,
+              "login": "richkuz",
+              "node_id": "MDQ6VXNlcjUyODgyNDY=",
+            }
+          },
+          "organization": {
+            "id": 6764390,
+            "login": "richkuz-org",
+          },
+          "repository": {
+            "owner": {
+              "login": 'mocked_owner'
+            },
+            "name": 'repo1'
+          },
+        },
+        "eventName": "issues",
+        "sha": "74ea4d0a8e69d179e13469067f0278d0d04b214c",
+        "ref": "refs/heads/main",
+        "workflow": "GitHub ProjectNext Automation",
+        "action": "sync_with_projects",
+        "actor": "richkuz"
+      }
+
+      expect(JSON.stringify(projectActions.normalizedGithubContext(mockGithubContext)))
+        .toBe(JSON.stringify({
+          "owner":"mocked_owner",
+          "repo":"repo1",
+          "action":"unlabeled",
+          "itemType":"Issue"
+        }));
     });
   });
 

@@ -118,20 +118,20 @@ class ProjectActions {
 
     normalizedGithubContext(githubContext) {
         const context = {
-            owner: githubContext.payload.repository.owner.login,
-            repo: githubContext.payload.repository.name,
-            label: githubContext.payload.label.name,
+            owner: githubContext.payload.repository?.owner?.login,
+            repo: githubContext.payload.repository?.name,
+            label: githubContext.payload.label?.name,
             action: githubContext.payload.action,
         }
         if (githubContext.eventName == "issues") {
             context.itemType = 'Issue';
-            context.itemNumber = githubContext.payload.issue.number;
-            context.itemId = githubContext.payload.issue.node_id;
+            context.itemNumber = githubContext.payload.issue?.number;
+            context.itemId = githubContext.payload.issue?.node_id;
         }
         else if (githubContext.eventName == "pull_request") {
             context.itemType = 'Pull request';
-            context.itemNumber = githubContext.payload.pull_request.number;
-            context.itemId = githubContext.payload.pull_request.node_id;
+            context.itemNumber = githubContext.payload.pull_request?.number;
+            context.itemId = githubContext.payload.pull_request?.node_id;
         }
         return context;
     }
