@@ -8,5 +8,5 @@ inputs:
     description: 'A GitHub token with write access to the destination project and read access to the source issue. See https://docs.github.com/en/actions/reference/encrypted-secrets'
     required: true
 runs:
-  using: 'node12'
+  using: 'node15'
   main: 'dist/index.js'
