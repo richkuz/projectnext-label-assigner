@@ -28522,21 +28522,23 @@ class ProjectActions {
     }
 
     normalizedGithubContext(githubContext) {
+        const { repository, label, action, issue, pull_request } = githubContext.payload;
         const context = {
-            owner: githubContext.payload.repository?.owner?.login,
-            repo: githubContext.payload.repository?.name,
-            label: githubContext.payload.label?.name,
-            action: githubContext.payload.action,
+            owner: repository && repository.owner && repository.owner.login,
+            repo: repository && repository.name,
+            label: label && label.name,
+            action: action,
         }
+
         if (githubContext.eventName == "issues") {
             context.itemType = 'Issue';
-            context.itemNumber = githubContext.payload.issue?.number;
-            context.itemId = githubContext.payload.issue?.node_id;
+            context.itemNumber = issue && issue.number;
+            context.itemId = issue && issue.node_id;
         }
         else if (githubContext.eventName == "pull_request") {
             context.itemType = 'Pull request';
-            context.itemNumber = githubContext.payload.pull_request?.number;
-            context.itemId = githubContext.payload.pull_request?.node_id;
+            context.itemNumber = pull_request && pull_request.number;
+            context.itemId = pull_request && pull_request.node_id;
         }
         return context;
     }
