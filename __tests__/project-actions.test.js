@@ -220,7 +220,7 @@ describe("projectActions", () => {
 
   describe("createItem", () => {
     it("creates an item", async () => {
-      const mockCreateItemMutation = `mutation createItem($projectId: String!, $contentId: String!) {
+      const mockCreateItemMutation = `mutation createItem($projectId: ID!, $contentId: ID!) {
           addProjectNextItem(input: {projectId: $projectId contentId: $contentId}) {
               projectNextItem {
                   id

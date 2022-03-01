@@ -28504,7 +28504,7 @@ class ProjectActions {
     async createItem(octokit, projectId, contentId) {
         try {
             const mutation = `
-                mutation createItem($projectId: String!, $contentId: String!) {
+                mutation createItem($projectId: ID!, $contentId: ID!) {
                     addProjectNextItem(input: {projectId: $projectId contentId: $contentId}) {
                         projectNextItem {
                             id
