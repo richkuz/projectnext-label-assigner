@@ -339,7 +339,7 @@ describe("projectActions", () => {
     });
   });
 
-  describe("findProjectItemsForIssueNumber", () => {
+  fdescribe("findProjectItemsForIssueNumber", () => {
     it("finds an issue's associated project item ID(s), if any", async () => {
       const mockFindProjectItemsForIssueNumberQuery = `query findProjectItemsForIssueNumber($owner: String!, $repo: String!, $issueNumber:Int!) {
         viewer {

@@ -32483,7 +32483,14 @@ class ProjectActions {
             console.log(`Params: ${JSON.stringify(params)}`);
             const response = await octokit(query, params);
             console.log(`Response from query for project items:\n${JSON.stringify(response, null, 2)}`);
-            const projectItems = _.get(response, 'organization.repository.issue.projectItems.nodes') || [];
+            const projectItems = _.get(response, 'viewer.organization.repository.issue.projectItems.nodes') || [];
+            console.log(`projectItems: ${JSON.stringify(projectItems)}`);
+            console.log(`_.get(viewer): ${JSON.stringify(_.get(response, 'viewer'))}`);
+            console.log(`_.get(organization): ${JSON.stringify(_.get(response, 'viewer.organization'))}`);
+            console.log(`_.get(repository): ${JSON.stringify(_.get(response, 'viewer.organization.repository'))}`);
+            console.log(`_.get(issue): ${JSON.stringify(_.get(response, 'viewer.organization.repository.issue'))}`);
+            console.log(`_.get(projectItems): ${JSON.stringify(_.get(response, 'viewer.organization.repository.issue.projectItems'))}`);
+            console.log(`_.get(nodes): ${JSON.stringify(_.get(response, 'viewer.organization.repository.issue.projectItems.nodes'))}`);
             if (projectItems.length == 50) {
                 throw new Error(`Too many project items for issue number ${issueNumber}`);
             }
@@ -32547,8 +32554,6 @@ class ProjectActions {
 
         const baseUrl = process.env.GRAPHQL_API_BASE || 'https://api.github.com'
         const headers = {
-            // Supply the feature flag as a header.
-            'GraphQL-Features': 'projects_next_graphql',
             Authorization: `Bearer ${process.env.PAT_TOKEN || process.env.GITHUB_TOKEN}`
         }
 
