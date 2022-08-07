@@ -1,4 +1,4 @@
-name: GitHub ProjectNext Automation
+name: GitHub ProjectV2 Automation
 on:
   issues:
     types: [labeled,unlabeled]
@@ -6,9 +6,9 @@ on:
 jobs:
   sync_issues_with_table:
     runs-on: ubuntu-latest
-    name: Sync issues with project table
+    name: Sync issues with a GitHub Project (Project V2)
     steps:
-      - name: Sync issues with project table
+      - name: Sync issues with GitHub Projects V2
         uses: richkuz/projectnext-label-assigner@main
         id: sync_with_projects
         with:
