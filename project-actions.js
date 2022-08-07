@@ -103,13 +103,11 @@ class ProjectActions {
 
     async findProjectItemsForIssueNumber(octokit, owner, repo, issueNumber) {
         try {
-            // TODO remove URL
             const query = `query findProjectItemsForIssueNumber($owner: String!, $repo: String!, $issueNumber:Int!) {
                 viewer {
                   organization(login:$owner) {
                     repository(name:$repo) {
                       issue(number:$issueNumber) {
-                        url
                         projectItems(first:50) {
                           nodes {
                             id
@@ -126,13 +124,6 @@ class ProjectActions {
             const response = await octokit(query, params);
             console.log(`Response from query for project items:\n${JSON.stringify(response, null, 2)}`);
             const projectItems = _.get(response, 'viewer.organization.repository.issue.projectItems.nodes') || [];
-            console.log(`projectItems: ${JSON.stringify(projectItems)}`);
-            console.log(`_.get(viewer): ${JSON.stringify(_.get(response, 'viewer'))}`);
-            console.log(`_.get(organization): ${JSON.stringify(_.get(response, 'viewer.organization'))}`);
-            console.log(`_.get(repository): ${JSON.stringify(_.get(response, 'viewer.organization.repository'))}`);
-            console.log(`_.get(issue): ${JSON.stringify(_.get(response, 'viewer.organization.repository.issue'))}`);
-            console.log(`_.get(projectItems): ${JSON.stringify(_.get(response, 'viewer.organization.repository.issue.projectItems'))}`);
-            console.log(`_.get(nodes): ${JSON.stringify(_.get(response, 'viewer.organization.repository.issue.projectItems.nodes'))}`);
             if (projectItems.length == 50) {
                 throw new Error(`Too many project items for issue number ${issueNumber}`);
             }

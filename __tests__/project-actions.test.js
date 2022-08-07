@@ -339,14 +339,13 @@ describe("projectActions", () => {
     });
   });
 
-  fdescribe("findProjectItemsForIssueNumber", () => {
+  describe("findProjectItemsForIssueNumber", () => {
     it("finds an issue's associated project item ID(s), if any", async () => {
       const mockFindProjectItemsForIssueNumberQuery = `query findProjectItemsForIssueNumber($owner: String!, $repo: String!, $issueNumber:Int!) {
         viewer {
           organization(login:$owner) {
             repository(name:$repo) {
               issue(number:$issueNumber) {
-                url
                 projectItems(first:50) {
                   nodes {
                     id
@@ -362,7 +361,6 @@ describe("projectActions", () => {
           "organization": {
             "repository": {
               "issue": {
-                "url": "https://github.com/richkuz-org/repo1/issues/3",
                 "projectItems": {
                   "nodes": [
                     {
