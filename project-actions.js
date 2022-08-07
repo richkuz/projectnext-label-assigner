@@ -189,8 +189,6 @@ class ProjectActions {
 
         const baseUrl = process.env.GRAPHQL_API_BASE || 'https://api.github.com'
         const headers = {
-            // Supply the feature flag as a header.
-            'GraphQL-Features': 'projects_next_graphql',
             Authorization: `Bearer ${process.env.PAT_TOKEN || process.env.GITHUB_TOKEN}`
         }
 
