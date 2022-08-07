@@ -221,15 +221,15 @@ describe("projectActions", () => {
   describe("createItem", () => {
     it("creates an item", async () => {
       const mockCreateItemMutation = `mutation createItem($projectId: ID!, $contentId: ID!) {
-          addProjectNextItem(input: {projectId: $projectId contentId: $contentId}) {
-              projectNextItem {
+        addProjectV2ItemById(input: {projectId: $projectId contentId: $contentId}) {
+              item {
                   id
               }
           }
       }`;
       const mockCreateItemResponse = JSON.parse(`{
-        "addProjectNextItem": {
-          "projectNextItem": {
+        "addProjectV2ItemById": {
+          "item": {
             "id":"MAE1OlByb2plY3ROZXh0SXRlbTUzNTk2"
           }
         }

@@ -100,8 +100,8 @@ class ProjectActions {
         try {
             const mutation = `
                 mutation createItem($projectId: ID!, $contentId: ID!) {
-                    addProjectNextItem(input: {projectId: $projectId contentId: $contentId}) {
-                        projectNextItem {
+                    addProjectV2ItemById(input: {projectId: $projectId contentId: $contentId}) {
+                        item {
                             id
                         }
                     }
@@ -110,7 +110,7 @@ class ProjectActions {
             // Octokit will throw an error if GraphQL returns any error messages
             const response = await octokit(mutation, {projectId: projectId, contentId: contentId});
             console.log(`Create item response:\n${JSON.stringify(response)}`);
-            return _.get(response, 'addProjectNextItem.projectNextItem.id');
+            return _.get(response, 'addProjectV2ItemById.item.id');
         } catch (error) {
             throw new Error(`Error creating item for item ID [${contentId}] in project ${projectId}: ${error.message}`);
         }
