@@ -7,55 +7,6 @@ const _ = require('lodash');
 
 class ProjectActions {
 
-    async removeItemFromProject(octokit, context, projectNumber) {
-        const { itemType, itemNumber, itemId } = context;
-
-        if (!projectNumber) {
-            throw new Error(`projectNumber is required.`);
-        }
-
-        if (!itemId) {
-            throw new Error(`itemId is required.`);
-        }
-
-        const projectId = await this.findProjectId(octokit, context, projectNumber);
-        if (!projectId) {
-            throw new Error(`Error removing item from project: projectNumber ${projectNumber} not found`);
-        }
-
-        console.log(`Removing ${itemType} number ${itemNumber}, ID ${itemId} from project [${projectNumber}], owner "${context.owner}"`);
-        await this.removeItem(octokit, projectId, itemId);
-    }
-
-    async removeItem(octokit, projectId, itemId) {
-        try {
-            console.log("TODO: Removing items is broken. There's no API to find an item by its origin issue ID.");
-            return;
-            /*
-            const mutation = `
-                mutation removeItem($projectId: String!, $itemId: ID!) {
-                    deleteProjectNextItem(
-                        input: {
-                          projectId: $projectId
-                          itemId: $itemId
-                        }
-                      ) {
-                        deletedItemId
-                      }
-                }`
-            const params = {projectId: projectId, itemId: itemId};
-            console.log(`Delete item mutation:\n${mutation}`);
-            console.log(`Params: ${JSON.stringify(params)}`);
-            // Octokit will throw an error if GraphQL returns any error messages
-            const response = await octokit(mutation, params);
-            console.log(`Remove item response:\n${JSON.stringify(response)}`);
-            return 'TODO';
-            */
-        } catch (error) {
-            throw new Error(`Error creating item for item ID [${itemId}] in project ${projectId}: ${error.message}`);
-        }
-    }
-
     async addItemToProject(octokit, context, projectNumber) {
         const { itemType, itemNumber, itemId } = context;
 
@@ -76,11 +27,65 @@ class ProjectActions {
         await this.createItem(octokit, projectId, itemId);
     }
 
+    async removeIssuesFromProject(octokit, context, projectNumber) {
+        const { itemType, itemNumber } = context;
+
+        if (!projectNumber) {
+            throw new Error(`projectNumber is required.`);
+        }
+
+        if (!itemNumber) {
+            throw new Error(`itemNumber is required.`);
+        }
+
+        if (itemType !== 'Issue') {
+            // TODO Implement support for pull requests some day
+            throw new Error(`only type 'Issue' is supported for removal`);
+        }
+
+        const projectId = await this.findProjectId(octokit, context, projectNumber);
+        if (!projectId) {
+            throw new Error(`Error removing item from project: projectNumber ${projectNumber} not found`);
+        }
+
+        // 'itemNumber is the issue number in this context
+        console.log(`findProjectItemsForIssueNumber(octokit, ${context.owner}, ${context.repo}, ${itemNumber})`);
+        const projectItemIds = await this.findProjectItemsForIssueNumber(octokit, context.owner, context.repo, itemNumber);
+
+        console.log(`Removing items ${JSON.stringify(projectItemIds)} from project [${projectNumber}], owner "${context.owner}"`);
+        projectItemIds.forEach(async (projectItemId) => {
+            await this.removeItem(octokit, projectId, projectItemId);
+        });
+    }
+
+    async removeItem(octokit, projectId, itemId) {
+        try {
+            const mutation = `
+                mutation deleteItem($projectId: ID!, $itemId: ID!) {
+                    deleteProjectV2Item(input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                    }) {
+                      deletedItemId
+                    }
+                  }`
+            const params = {projectId: projectId, itemId: itemId};
+            console.log(`Delete item mutation:\n${mutation}`);
+            console.log(`Params: ${JSON.stringify(params)}`);
+            // Octokit will throw an error if GraphQL returns any error messages
+            const response = await octokit(mutation, params);
+            console.log(`Remove item response:\n${JSON.stringify(response)}`);
+            return _.get(response, 'deleteProjectV2Item.deletedItemId');
+        } catch (error) {
+            throw new Error(`Error removing item with ID '${itemId}' in project ${projectId}: ${error.message}`);
+        }
+    }
+
     async findProjectId(octokit, context, projectNumber) {
         try {
             const query = `query findProjectId($owner: String!, $projectNumber: Int!) {
                 organization(login: $owner) {
-                    projectNext(number: $projectNumber) {
+                    projectV2(number: $projectNumber) {
                         id
                     }
                 }
@@ -90,9 +95,44 @@ class ProjectActions {
             console.log(`Params: ${JSON.stringify(params)}`);
             const response = await octokit(query, params);
             console.log(`Response from query for project ID:\n${JSON.stringify(response, null, 2)}`);
-            return _.get(response, 'organization.projectNext.id');
+            return _.get(response, 'organization.projectV2.id');
         } catch (error) {
             throw new Error(`Error querying project ID for project number ${projectNumber}: ${error.message} \n error.request: ${JSON.stringify(error.request)}`);
+        }
+    }
+
+    async findProjectItemsForIssueNumber(octokit, owner, repo, issueNumber) {
+        try {
+            const query = `query findProjectItemsForIssueNumber($owner: String!, $repo: String!, $issueNumber:Int!) {
+                viewer {
+                  organization(login:$owner) {
+                    repository(name:$repo) {
+                      issue(number:$issueNumber) {
+                        projectItems(first:50) {
+                          nodes {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }`;
+            const params = { owner: owner, repo: repo, issueNumber: issueNumber };
+            console.log(`Query for findItemByIssueNumber:\n${query}`);
+            console.log(`Params: ${JSON.stringify(params)}`);
+            const response = await octokit(query, params);
+            console.log(`Response from query for project items:\n${JSON.stringify(response, null, 2)}`);
+            const projectItems = _.get(response, 'viewer.organization.repository.issue.projectItems.nodes') || [];
+            if (projectItems.length == 50) {
+                throw new Error(`Too many project items for issue number ${issueNumber}`);
+            }
+            const projectItemIds = projectItems.map((item) =>  {
+                return item['id'];
+            });
+            return projectItemIds;
+        } catch (error) {
+            throw new Error(`Error querying project items for issue number ${issueNumber}: ${error.message} \n error.request: ${JSON.stringify(error.request)}`);
         }
     }
 
@@ -100,8 +140,8 @@ class ProjectActions {
         try {
             const mutation = `
                 mutation createItem($projectId: ID!, $contentId: ID!) {
-                    addProjectNextItem(input: {projectId: $projectId contentId: $contentId}) {
-                        projectNextItem {
+                    addProjectV2ItemById(input: {projectId: $projectId contentId: $contentId}) {
+                        item {
                             id
                         }
                     }
@@ -110,7 +150,7 @@ class ProjectActions {
             // Octokit will throw an error if GraphQL returns any error messages
             const response = await octokit(mutation, {projectId: projectId, contentId: contentId});
             console.log(`Create item response:\n${JSON.stringify(response)}`);
-            return _.get(response, 'addProjectNextItem.projectNextItem.id');
+            return _.get(response, 'addProjectV2ItemById.item.id');
         } catch (error) {
             throw new Error(`Error creating item for item ID [${contentId}] in project ${projectId}: ${error.message}`);
         }
@@ -147,8 +187,6 @@ class ProjectActions {
 
         const baseUrl = process.env.GRAPHQL_API_BASE || 'https://api.github.com'
         const headers = {
-            // Supply the feature flag as a header.
-            'GraphQL-Features': 'projects_next_graphql',
             Authorization: `Bearer ${process.env.PAT_TOKEN || process.env.GITHUB_TOKEN}`
         }
 
@@ -172,7 +210,7 @@ class ProjectActions {
             } else if (context.action == "unlabeled") {
                 for (const config of configs) {
                     if (context.label === config.label) {
-                        await this.removeItemFromProject(octokit, context, config.projectNumber);
+                        await this.removeIssuesFromProject(octokit, context, config.projectNumber);
                     }
                 };
             }
