@@ -358,19 +358,21 @@ describe("projectActions", () => {
         }
       }`;
       const mockFindProjectItemsForIssueNumberResponse = JSON.parse(`{
-        "organization": {
-          "repository": {
-            "issue": {
-              "url": "https://github.com/richkuz-org/repo1/issues/3",
-              "projectItems": {
-                "nodes": [
-                  {
-                    "id": "PVTI_lADOBQfyVc0Foc4Afl9P"
-                  },
-                  {
-                    "id": "PVTI_OoDOasdfasdfasdAfqwe"
-                  }
-                ]
+        "viewer": {
+          "organization": {
+            "repository": {
+              "issue": {
+                "url": "https://github.com/richkuz-org/repo1/issues/3",
+                "projectItems": {
+                  "nodes": [
+                    {
+                      "id": "PVTI_lADOBQfyVc0Foc4Afl9P"
+                    },
+                    {
+                      "id": "PVTI_OoDOasdfasdfasdAfqwe"
+                    }
+                  ]
+                }
               }
             }
           }

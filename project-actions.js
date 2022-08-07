@@ -125,7 +125,7 @@ class ProjectActions {
             console.log(`Params: ${JSON.stringify(params)}`);
             const response = await octokit(query, params);
             console.log(`Response from query for project items:\n${JSON.stringify(response, null, 2)}`);
-            const projectItems = _.get(response, 'organization.repository.issue.projectItems.nodes') || [];
+            const projectItems = _.get(response, 'viewer.organization.repository.issue.projectItems.nodes') || [];
             if (projectItems.length == 50) {
                 throw new Error(`Too many project items for issue number ${issueNumber}`);
             }
