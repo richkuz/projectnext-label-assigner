@@ -70,7 +70,7 @@ describe("projectActions", () => {
         .mockImplementation(() => mockConfig);
       const spiedNormalizedGithubContext = jest.spyOn(projectActions, 'normalizedGithubContext')
         .mockImplementation(() => mockUnlabeledIssueContext);
-      const spiedRemoveItemFromProject = jest.spyOn(projectActions, 'removeItemFromProject')
+      const spiedRemoveItemFromProject = jest.spyOn(projectActions, 'removeIssuesFromProject')
         .mockImplementation();
 
       await projectActions.run();
@@ -218,6 +218,39 @@ describe("projectActions", () => {
     });
   });
 
+  describe("removeIssuesFromProject", () => {
+    it("removes any items from a project associated with the given issue number", async () => {
+
+      const mockProjectItemIds = ['mock_project_item_id_1', 'mock_project_item_id_2'];
+      const spiedFindProjectId = jest.spyOn(projectActions, 'findProjectId').mockImplementation(() => 'mock_project_id');
+      const spiedFindProjectItems = jest.spyOn(projectActions, 'findProjectItemsForIssueNumber').mockImplementation(() => mockProjectItemIds);
+
+      const spiedRemoveItem = jest.spyOn(projectActions, 'removeItem').mockImplementation(() => '');
+
+      const octokit = {};
+      const context = mockIssuesContext;
+      const projectNumber = 17;
+
+      await projectActions.removeIssuesFromProject(octokit, context, projectNumber);
+
+      expect(spiedFindProjectId.mock.calls.length).toBe(1);
+      const spiedProjectNumber = spiedFindProjectId.mock.calls[0][2];
+      expect(spiedProjectNumber).toBe(projectNumber);
+
+      expect(spiedFindProjectItems.mock.calls.length).toBe(1);
+      const spiedRepoName = spiedFindProjectItems.mock.calls[0][2];
+      expect(spiedRepoName).toBe(context.repo);
+      const spiedIssueNumber = spiedFindProjectItems.mock.calls[0][3];
+      expect(spiedIssueNumber).toBe(context.itemNumber);
+
+      expect(spiedRemoveItem.mock.calls.length).toBe(2);
+      expect(spiedRemoveItem.mock.calls[0][1]).toBe('mock_project_id');
+      expect(spiedRemoveItem.mock.calls[0][2]).toBe(mockProjectItemIds[0]);
+      expect(spiedRemoveItem.mock.calls[1][1]).toBe('mock_project_id');
+      expect(spiedRemoveItem.mock.calls[1][2]).toBe(mockProjectItemIds[1]);
+    });
+  });
+
   describe("createItem", () => {
     it("creates an item", async () => {
       const mockCreateItemMutation = `mutation createItem($projectId: ID!, $contentId: ID!) {
@@ -277,25 +310,19 @@ describe("projectActions", () => {
     });
   });
 
-
-  // TODO Removing items doesn't work yet. No API exists to find an item by its origin issue ID.
-  xdescribe("removeItem", () => {
-    it("removes an item", async () => {
-      const mockRemoveItemMutation = `mutation removeItem($projectId: String!, $itemId: ID!) {
-        deleteProjectNextItem(
-          input: {
+  describe("removeItem", () => {
+    it("removes an item from a project", async () => {
+      const mockRemoveItemMutation = `mutation deleteItem($projectId: ID!, $itemId: ID!) {
+          deleteProjectV2Item(input: {
             projectId: $projectId
             itemId: $itemId
+          }) {
+            deletedItemId
           }
-        ) {
-          deletedItemId
-        }
-      }`;
+        }`;
       const mockRemoveItemResponse = JSON.parse(`{
-        "deleteProjectNextItem": {
-          "projectNextItem": {
-            "id":"MAE1OlByb2plY3ROZXh0SXRlbTUzNTk2"
-          }
+        "deleteProjectV2Item": {
+          "deletedItemId": "PVTI_lADOBQfyVc0Foc4Afl9P"
         }
       }`);
 
@@ -303,12 +330,70 @@ describe("projectActions", () => {
       const itemId = 'mock_item_id';
       const projectId = 'mock_project_id';
       const response = await projectActions.removeItem(mOctokit, projectId, itemId);
-      expect(response).toBe('MAE1OlByb2plY3ROZXh0SXRlbTUzNTk2');
+      expect(response).toBe('PVTI_lADOBQfyVc0Foc4Afl9P');
       expect(mOctokit.mock.calls.length).toBe(1);
       const invokedQuery = mOctokit.mock.calls[0][0];
       const invokedParams = mOctokit.mock.calls[0][1];
       expect(invokedQuery.replace(/\s+/g, '')).toBe(mockRemoveItemMutation.replace(/\s+/g, ''));
       expect(JSON.stringify(invokedParams)).toBe(JSON.stringify({ projectId: projectId, itemId: itemId }));
+    });
+  });
+
+  describe("findProjectItemsForIssueNumber", () => {
+    it("finds an issue's associated project item ID(s), if any", async () => {
+      const mockFindProjectItemsForIssueNumberQuery = `query findProjectItemsForIssueNumber($owner: String!, $repo: String!, $issueNumber:Int!) {
+        viewer {
+          organization(login:$owner) {
+            repository(name:$repo) {
+              issue(number:$issueNumber) {
+                url
+                projectItems(first:50) {
+                  nodes {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        }
+      }`;
+      const mockFindProjectItemsForIssueNumberResponse = JSON.parse(`{
+        "organization": {
+          "repository": {
+            "issue": {
+              "url": "https://github.com/richkuz-org/repo1/issues/3",
+              "projectItems": {
+                "nodes": [
+                  {
+                    "id": "PVTI_lADOBQfyVc0Foc4Afl9P"
+                  },
+                  {
+                    "id": "PVTI_OoDOasdfasdfasdAfqwe"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }`);
+
+      const mOctokit = jest.fn().mockResolvedValueOnce(mockFindProjectItemsForIssueNumberResponse);
+      const projectNumber = 2;
+      const response = await projectActions.findProjectItemsForIssueNumber(
+        mOctokit,
+        mockIssuesContext.owner,
+        mockIssuesContext.repo,
+        mockIssuesContext.itemNumber);
+      expect(JSON.stringify(response)).toBe(JSON.stringify(['PVTI_lADOBQfyVc0Foc4Afl9P', 'PVTI_OoDOasdfasdfasdAfqwe']));
+      expect(mOctokit.mock.calls.length).toBe(1);
+      const invokedQuery = mOctokit.mock.calls[0][0];
+      const invokedParams = mOctokit.mock.calls[0][1];
+      expect(invokedQuery.replace(/\s+/g, '')).toBe(mockFindProjectItemsForIssueNumberQuery.replace(/\s+/g, ''));
+      expect(JSON.stringify(invokedParams)).toBe(JSON.stringify({
+        owner: mockIssuesContext.owner,
+        repo: mockIssuesContext.repo,
+        issueNumber: mockIssuesContext.itemNumber
+       }));
     });
   });
 });
