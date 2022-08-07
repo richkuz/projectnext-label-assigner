@@ -80,7 +80,7 @@ class ProjectActions {
         try {
             const query = `query findProjectId($owner: String!, $projectNumber: Int!) {
                 organization(login: $owner) {
-                    projectNext(number: $projectNumber) {
+                    projectV2(number: $projectNumber) {
                         id
                     }
                 }
@@ -90,7 +90,7 @@ class ProjectActions {
             console.log(`Params: ${JSON.stringify(params)}`);
             const response = await octokit(query, params);
             console.log(`Response from query for project ID:\n${JSON.stringify(response, null, 2)}`);
-            return _.get(response, 'organization.projectNext.id');
+            return _.get(response, 'organization.projectV2.id');
         } catch (error) {
             throw new Error(`Error querying project ID for project number ${projectNumber}: ${error.message} \n error.request: ${JSON.stringify(error.request)}`);
         }

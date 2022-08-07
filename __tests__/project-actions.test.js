@@ -252,14 +252,14 @@ describe("projectActions", () => {
     it("finds a column in a user project", async () => {
       const mockFindProjectIdQuery = `query findProjectId($owner: String!, $projectNumber: Int!) {
         organization(login: $owner) {
-            projectNext(number: $projectNumber) {
+            projectV2(number: $projectNumber) {
                 id
             }
         }
       }`;
       const mockFindProjectIdResponse = JSON.parse(`{
         "organization": {
-          "projectNext": {
+          "projectV2": {
             "id": "MAExOlByb2plY3ROZXh0MTQ0MQ=="
           }
         }
